@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: stayhub
   servlet:
     multipart:
       max-file-size: 10MB # File upload limit, default 1MB not enough.
@@ -21,3 +23,9 @@ spring:
     init:
       mode: always
       schema-locations: "classpath:postgis_extension.sql"
+
+stayhub:
+  gcs:
+    bucket: stayhub-bucket
+  geocoding:
+    key: ${GEOCODING_API_KEY}
