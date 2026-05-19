@@ -29,3 +29,5 @@ stayhub:
     bucket: stayhub-bucket
   geocoding:
     key: ${GEOCODING_API_KEY}
+  jwt:
+    secret-key: ${JWT_SECRET_KEY}
