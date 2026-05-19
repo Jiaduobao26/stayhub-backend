@@ -1,13 +1,11 @@
 package com.lee.stayhub.listing;
 
-
-
 import com.lee.stayhub.booking.BookingService;
 import com.lee.stayhub.model.BookingDto;
 import com.lee.stayhub.model.ListingDto;
 import com.lee.stayhub.model.UserEntity;
-import com.lee.stayhub.model.UserRole;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,12 +17,8 @@ import java.util.List;
 @RequestMapping("/listings")
 public class ListingController {
 
-
     private final BookingService bookingService;
     private final ListingService listingService;
-
-
-    private final UserEntity user = new UserEntity(1L, "rich_the_landlord", "YT61cW", UserRole.ROLE_HOST);
 
 
     public ListingController(BookingService bookingService, ListingService listingService) {
@@ -34,7 +28,7 @@ public class ListingController {
 
 
     @GetMapping
-    public List<ListingDto> getListings() {
+    public List<ListingDto> getListings(@AuthenticationPrincipal UserEntity user) {
         return listingService.getListings(user.getId());
     }
 
@@ -42,6 +36,7 @@ public class ListingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createListing(
+            @AuthenticationPrincipal UserEntity user,
             @RequestParam("name") String name,
             @RequestParam("address") String address,
             @RequestParam("description") String description,
@@ -54,29 +49,27 @@ public class ListingController {
 
     @DeleteMapping("/{listingId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteListing(@PathVariable Long listingId) {
+    public void deleteListing(@AuthenticationPrincipal UserEntity user, @PathVariable Long listingId) {
         listingService.deleteListing(user.getId(), listingId);
     }
 
 
     @GetMapping("/search")
     public List<ListingDto> search(
+            @AuthenticationPrincipal UserEntity user,
             @RequestParam("lat") double lat,
             @RequestParam("lon") double lon,
             @RequestParam("checkin_date") LocalDate checkIn,
             @RequestParam("checkout_date") LocalDate checkOut,
             @RequestParam("guest_number") int guestNumber,
-            @RequestParam(name = "distance", required = false) Integer distance
+            @RequestParam(name = "distance", required = false, defaultValue = "500000") Integer distance
     ) {
-        if (distance == null) {
-            distance = 500000;
-        }
         return listingService.search(lat, lon, distance, checkIn, checkOut, guestNumber);
     }
 
 
     @GetMapping("/{listingId}/bookings")
-    public List<BookingDto> getListingBookings(@PathVariable Long listingId) {
+    public List<BookingDto> getListingBookings(@AuthenticationPrincipal UserEntity user, @PathVariable Long listingId) {
         return bookingService.findBookingsByListingId(user.getId(), listingId);
     }
 }
