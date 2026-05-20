@@ -24,6 +24,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 @Configuration
 public class AppConfig {
@@ -63,8 +64,14 @@ public class AppConfig {
     }
     @Bean
     public Storage storage() throws IOException {
-        Credentials credentials = ServiceAccountCredentials.fromStream(getClass().getClassLoader().getResourceAsStream("credentials.json"));
-        return StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+        InputStream credentialsStream = getClass().getClassLoader().getResourceAsStream("credentials.json");
+        if (credentialsStream != null) {
+            // Local development: use service account credentials from credentials.json
+            Credentials credentials = ServiceAccountCredentials.fromStream(credentialsStream);
+            return StorageOptions.newBuilder().setCredentials(credentials).build().getService();
+        }
+        // Cloud Run: use Application Default Credentials provided automatically by GCP
+        return StorageOptions.getDefaultInstance().getService();
     }
 
     @Bean
