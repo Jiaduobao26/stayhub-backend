@@ -96,6 +96,10 @@ public class DevRunner implements ApplicationRunner {
         logger.info("Listing 1 has upcoming booking? " + hasUpcomingBooking);
     }
     private void generateSampleData() {
+        if (userRepository.count() > 0) {
+            logger.info("Sample data already exists, skipping data generation.");
+            return;
+        }
         userRepository.saveAll(List.of(
                 new UserEntity(null, "rich_the_landlord", "YT61cW", UserRole.ROLE_HOST),
                 new UserEntity(null, "starry_nights", "sa4NiK", UserRole.ROLE_HOST),
