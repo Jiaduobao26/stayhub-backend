@@ -1,9 +1,10 @@
 package com.lee.stayhub;
 
-import com.lee.stayhub.model.ErrorResponse;
+import com.lee.stayhub.authentication.UserAlreadyExistException;
 import com.lee.stayhub.booking.DeleteBookingNotAllowedException;
 import com.lee.stayhub.booking.InvalidBookingException;
 import com.lee.stayhub.booking.ListingBookingsNotAllowedException;
+import com.lee.stayhub.model.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalControllerExceptionHandler {
 
 
+
+
+    @ExceptionHandler(UserAlreadyExistException.class)
+    public final ResponseEntity<ErrorResponse> handleException(UserAlreadyExistException e) {
+        return new ResponseEntity<>(new ErrorResponse(
+                "Username already exists",
+                "user_already_exist"),
+                HttpStatus.CONFLICT);
+    }
 
 
     @ExceptionHandler(EntityNotFoundException.class)
