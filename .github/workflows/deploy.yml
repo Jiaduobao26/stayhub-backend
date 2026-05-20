@@ -1,0 +1,37 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: stayhub
+          region: us-west1
+          source: .
+          flags: >
+            --allow-unauthenticated
+            --cpu=0.5
+            --memory=512Mi
+            --max-instances=1
+          env_vars: >
+            DATABASE_URL=${{ secrets.DATABASE_URL }},
+            DATABASE_PORT=5432,
+            DATABASE_USERNAME=postgres,
+            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }},
+            GEOCODING_API_KEY=${{ secrets.GEOCODING_API_KEY }},
+            JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
